@@ -17,6 +17,7 @@ export interface WeatherData {
   
   export interface ForecastData {
     list: {
+      [x: string]: any;
       dt: number;
       main: {
         temp: number;

@@ -5,6 +5,7 @@ import {
   CircularProgress, 
   IconButton,
   Paper,
+  Typography
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { debounce } from '@mui/material/utils';
@@ -37,12 +38,22 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
           appid: import.meta.env.VITE_OPENWEATHER_API_KEY
         }
       });
-      const locations: Location[] = response.data.map((item: any) => ({
-        name: item.name,
-        country: item.country,
-        state: item.state
-      }));
-      setOptions(locations);
+      
+      const uniqueLocations = response.data.reduce((acc: Location[], item: any) => {
+        const key = `${item.name}-${item.country}${item.state ? `-${item.state}` : ''}`;
+        if (!acc.some(location => 
+          `${location.name}-${location.country}${location.state ? `-${location.state}` : ''}` === key
+        )) {
+          acc.push({
+            name: item.name,
+            country: item.country,
+            state: item.state
+          });
+        }
+        return acc;
+      }, []);
+
+      setOptions(uniqueLocations);
     } catch (error) {
       console.error('Error fetching locations:', error);
       setOptions([]);
@@ -109,7 +120,17 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
         )}
         renderOption={(props, option) => (
           <li {...props}>
-            {option.name}{option.state ? `, ${option.state}` : ''}, {option.country}
+            <Typography noWrap>
+              {option.name}
+              {option.state && (
+                <Typography component="span" color="text.secondary">
+                  , {option.state}
+                </Typography>
+              )}
+              <Typography component="span" color="text.secondary">
+                , {option.country}
+              </Typography>
+            </Typography>
           </li>
         )}
       />
