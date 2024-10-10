@@ -6,7 +6,9 @@ It will display the current temperature, weather conditions (sunny, cloudy, etc.
 
 ## Development prerequisites
 
-Run `npm install` to install all dependencies to be able to run the application in development environment.
+- Create .env file from .env.example file then update the VITE_OPENWEATHER_API_KEY with the real openweather api key.
+- Run `npm install` to install all dependencies to be able to run the application in development environment.
+
 
 ## Development server
 
