@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import {
@@ -26,19 +26,27 @@ interface DailyForecast {
 }
 
 const App: React.FC = () => {
-  const { weather, forecast, loading, notification, fetchWeather } =
-    useWeather();
+  const {
+    weather,
+    forecast,
+    loading,
+    notification,
+    fetchWeather,
+    resetNotification,
+  } = useWeather();
   const { theme, toggleTheme } = useTheme();
   const muiTheme = React.useMemo(() => getTheme(theme), [theme]);
 
-  const handleSearch = (query: string) => {
-    fetchWeather(query);
-  };
+  const handleSearch = useCallback(
+    (query: string) => {
+      fetchWeather(query);
+    },
+    [fetchWeather]
+  );
 
-  const handleCloseNotification = () => {
-    // Idéalement, nous devrions avoir une fonction dans useWeather pour réinitialiser la notification
-    // fetchWeather('');
-  };
+  const handleCloseNotification = useCallback(() => {
+    resetNotification();
+  }, [resetNotification]);
 
   const formattedForecast: DailyForecast[] = React.useMemo(() => {
     if (!forecast?.list) return [];
@@ -68,7 +76,7 @@ const App: React.FC = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Weather App
+            Weather React App
           </Typography>
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         </Toolbar>

@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { 
-  Autocomplete, 
-  TextField, 
-  CircularProgress, 
+import React, { useState } from "react";
+import {
+  Autocomplete,
+  TextField,
+  CircularProgress,
   IconButton,
   Paper,
-  Typography
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import { debounce } from '@mui/material/utils';
-import axios from 'axios';
+  Typography,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { debounce } from "@mui/material/utils";
+import axios from "axios";
 
 interface Location {
   name: string;
@@ -25,37 +25,49 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<Location[]>([]);
   const [loading, setLoading] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
 
   const fetchLocations = async (input: string) => {
     if (input.length < 2) return;
     setLoading(true);
     try {
-      const response = await axios.get(`http://api.openweathermap.org/geo/1.0/direct`, {
-        params: {
-          q: input,
-          limit: 5,
-          appid: import.meta.env.VITE_OPENWEATHER_API_KEY
+      const response = await axios.get(
+        `http://api.openweathermap.org/geo/1.0/direct`,
+        {
+          params: {
+            q: input,
+            limit: 5,
+            appid: import.meta.env.VITE_OPENWEATHER_API_KEY,
+          },
         }
-      });
-      
-      const uniqueLocations = response.data.reduce((acc: Location[], item: any) => {
-        const key = `${item.name}-${item.country}${item.state ? `-${item.state}` : ''}`;
-        if (!acc.some(location => 
-          `${location.name}-${location.country}${location.state ? `-${location.state}` : ''}` === key
-        )) {
-          acc.push({
-            name: item.name,
-            country: item.country,
-            state: item.state
-          });
-        }
-        return acc;
-      }, []);
+      );
+
+      const uniqueLocations = response.data.reduce(
+        (acc: Location[], item: any) => {
+          const key = `${item.name}-${item.country}${
+            item.state ? `-${item.state}` : ""
+          }`;
+          if (
+            !acc.some(
+              (location) =>
+                `${location.name}-${location.country}${
+                  location.state ? `-${location.state}` : ""
+                }` === key
+            )
+          ) {
+            acc.push({
+              name: item.name,
+              country: item.country,
+              state: item.state,
+            });
+          }
+          return acc;
+        },
+        []
+      );
 
       setOptions(uniqueLocations);
     } catch (error) {
-      console.error('Error fetching locations:', error);
       setOptions([]);
     } finally {
       setLoading(false);
@@ -73,7 +85,10 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
     };
   }, [debouncedFetchLocations]);
 
-  const handleInputChange = (event: React.SyntheticEvent, newInputValue: string) => {
+  const handleInputChange = (
+    event: React.SyntheticEvent,
+    newInputValue: string
+  ) => {
     setInputValue(newInputValue);
     debouncedFetchLocations(newInputValue);
   };
@@ -85,7 +100,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+    <Paper elevation={3} sx={{ p: 2, display: "flex", alignItems: "center" }}>
       <Autocomplete
         id="location-search"
         sx={{ flexGrow: 1 }}
@@ -95,10 +110,12 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
         inputValue={inputValue}
         onInputChange={handleInputChange}
         options={options}
-        getOptionLabel={(option) => 
-          typeof option === 'string' 
-            ? option 
-            : `${option.name}${option.state ? `, ${option.state}` : ''}, ${option.country}`
+        getOptionLabel={(option) =>
+          typeof option === "string"
+            ? option
+            : `${option.name}${option.state ? `, ${option.state}` : ""}, ${
+                option.country
+              }`
         }
         filterOptions={(x) => x}
         freeSolo
@@ -111,7 +128,9 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
               ...params.InputProps,
               endAdornment: (
                 <React.Fragment>
-                  {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
                   {params.InputProps.endAdornment}
                 </React.Fragment>
               ),
@@ -134,8 +153,8 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch }) => {
           </li>
         )}
       />
-      <IconButton 
-        color="primary" 
+      <IconButton
+        color="primary"
         onClick={handleSearch}
         disabled={!inputValue.trim()}
         sx={{ ml: 1 }}
