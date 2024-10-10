@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { Container, Typography, Box, CircularProgress, Alert, Snackbar } from '@mui/material';
+import SearchForm from './components/SearchForm';
+import useWeather from './hooks/useWeather';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const { weather, loading, notification, fetchWeather } = useWeather();
+
+  const handleSearch = (query: string) => {
+    fetchWeather(query);
+  };
+
+  const handleCloseNotification = () => {
+    // Ici, nous devrions idéalement avoir une fonction dans useWeather pour réinitialiser la notification
+    // Pour cet exemple, nous allons simplement re-fetch avec une chaîne vide pour effacer la notification
+    fetchWeather('');
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Container maxWidth="md">
+      <Box sx={{ my: 4 }}>
+        <Typography variant="h2" component="h1" gutterBottom>
+          Weather App
+        </Typography>
+        <SearchForm onSearch={handleSearch} />
+        {loading && <CircularProgress />}
+        {weather && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h4">{weather.name}</Typography>
+            <Typography variant="h5">{weather.main.temp}°C</Typography>
+            <Typography>{weather.weather[0].description}</Typography>
+          </Box>
+        )}
+        {/* We'll add the forecast display later */}
+        <Snackbar open={!!notification} autoHideDuration={6000} onClose={handleCloseNotification}>
+          <Alert onClose={handleCloseNotification} severity={notification?.severity} sx={{ width: '100%' }}>
+            {notification?.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </Container>
+  );
+};
 
-export default App
+export default App;
